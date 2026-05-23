@@ -6,7 +6,6 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useFlightStore } from "@/stores/flightStore";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/format";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Seat = {
   id: string;
@@ -20,7 +19,7 @@ type Seat = {
 type Props = {
   flightId: string;
   selectedSeatId: string | null;
-  ownSeatIds?: string[]; // seats already booked by current user (for reschedule context)
+  ownSeatIds?: string[];
   onSelect: (seat: Seat) => void;
 };
 
@@ -44,7 +43,6 @@ export function SeatMap({ flightId, selectedSeatId, ownSeatIds = [], onSelect }:
     },
   });
 
-  // Realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel(`seats:${flightId}`)
@@ -58,8 +56,10 @@ export function SeatMap({ flightId, selectedSeatId, ownSeatIds = [], onSelect }:
         },
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [flightId, queryClient]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [flightId, queryClient, supabase]);
 
   const rows = useMemo(() => {
     const map = new Map<number, Seat[]>();
@@ -75,92 +75,79 @@ export function SeatMap({ flightId, selectedSeatId, ownSeatIds = [], onSelect }:
   }, [seats]);
 
   if (isLoading) {
-    return <div className="h-96 animate-pulse rounded-2xl bg-secondary" />;
+    return <div className="h-80 animate-pulse rounded-lg bg-secondary" />;
   }
 
   return (
-    <TooltipProvider delayDuration={150}>
-      <div className="overflow-x-auto">
-        <div className="mx-auto min-w-[340px] max-w-md rounded-2xl border border-border bg-gradient-to-b from-secondary/40 to-card p-4 shadow-sm md:p-6">
-          {/* Cockpit nose */}
-          <div className="mx-auto mb-4 h-8 w-20 rounded-t-full border-x border-t border-border bg-card" />
+    <div className="overflow-x-auto">
+      <div className="mx-auto min-w-[320px] max-w-md rounded-lg border border-black/10 bg-white p-4">
+        <div className="mx-auto mb-4 h-6 w-16 rounded-t-full border border-b-0 border-black/10" />
 
-          {/* Column headers */}
-          <div className="ml-7 grid grid-cols-[repeat(3,1fr)_0.5rem_repeat(3,1fr)] gap-1.5 px-1 text-center text-[10px] font-medium text-muted-foreground">
-            {COLS.slice(0, 3).map((c) => <div key={c}>{c}</div>)}
-            <div />
-            {COLS.slice(3).map((c) => <div key={c}>{c}</div>)}
-          </div>
-
-          {rows.map(([rowNum, rowSeats], idx) => {
-            const cls = rowSeats[0]?.class;
-            const prevCls = idx > 0 ? rows[idx - 1][1][0]?.class : null;
-            const showDivider = prevCls && prevCls !== cls;
-            return (
-              <div key={rowNum}>
-                {showDivider && (
-                  <div className="my-2 flex items-center gap-2 px-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                    <div className="h-px flex-1 bg-border" />
-                    {cls} class
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
-                )}
-                {idx === 0 && (
-                  <div className="my-2 flex items-center gap-2 px-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                    <div className="h-px flex-1 bg-border" />
-                    {cls} class
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
-                )}
-                <div className="mt-1 grid grid-cols-[1.25rem_repeat(3,1fr)_0.5rem_repeat(3,1fr)] items-center gap-1.5 px-1">
-                  <span className="text-center text-[10px] text-muted-foreground">{rowNum}</span>
-                  {COLS.map((col, ci) => {
-                    const seat = rowSeats.find((s) => s.seat_number.endsWith(col));
-                    const cells: React.ReactNode[] = [];
-                    if (ci === 3) cells.push(<div key={`aisle-${rowNum}`} />);
-                    if (seat) {
-                      cells.push(
-                        <SeatButton
-                          key={seat.id}
-                          seat={seat}
-                          selectedSeatId={selectedSeatId}
-                          optimisticSeatIds={optimisticSeatIds}
-                          ownSeatIds={ownSeatIds}
-                          onSelect={onSelect}
-                        />,
-                      );
-                    }
-                    return cells;
-                  })}
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Legend */}
-          <div className="mt-5 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground md:grid-cols-4">
-            <Legend swatch="bg-seat-available border" label="Available" />
-            <Legend swatch="bg-seat-selected" label="Selected" />
-            <Legend swatch="bg-seat-occupied opacity-60" label="Occupied" />
-            <Legend swatch="bg-seat-own" label="Your seat" />
-          </div>
+        <div className="ml-6 grid grid-cols-[repeat(3,1fr)_0.5rem_repeat(3,1fr)] gap-1 text-center text-[10px] text-muted-foreground">
+          {COLS.slice(0, 3).map((c) => (
+            <div key={c}>{c}</div>
+          ))}
+          <div />
+          {COLS.slice(3).map((c) => (
+            <div key={c}>{c}</div>
+          ))}
         </div>
-      </div>
-    </TooltipProvider>
-  );
-}
 
-function Legend({ swatch, label }: { swatch: string; label: string }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className={cn("h-3 w-3 rounded-sm", swatch)} />
-      {label}
+        {rows.map(([rowNum, rowSeats], idx) => {
+          const cabin = rowSeats[0]?.class;
+          const prevCabin = idx > 0 ? rows[idx - 1][1][0]?.class : null;
+          return (
+            <div key={rowNum}>
+              {(idx === 0 || prevCabin !== cabin) && (
+                <p className="my-2 text-center text-[10px] uppercase text-muted-foreground">{cabin}</p>
+              )}
+              <div className="grid grid-cols-[1rem_repeat(3,1fr)_0.5rem_repeat(3,1fr)] items-center gap-1">
+                <span className="text-[10px] text-muted-foreground">{rowNum}</span>
+                {COLS.map((col, ci) => {
+                  const seat = rowSeats.find((s) => s.seat_number.endsWith(col));
+                  const cells: React.ReactNode[] = [];
+                  if (ci === 3) cells.push(<div key={`aisle-${rowNum}`} />);
+                  if (seat) {
+                    cells.push(
+                      <SeatButton
+                        key={seat.id}
+                        seat={seat}
+                        selectedSeatId={selectedSeatId}
+                        optimisticSeatIds={optimisticSeatIds}
+                        ownSeatIds={ownSeatIds}
+                        onSelect={onSelect}
+                      />,
+                    );
+                  }
+                  return cells;
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        <ul className="mt-4 flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <li className="flex items-center gap-1">
+            <span className="h-3 w-3 rounded border bg-seat-available" /> Available
+          </li>
+          <li className="flex items-center gap-1">
+            <span className="h-3 w-3 rounded bg-seat-selected" /> Selected
+          </li>
+          <li className="flex items-center gap-1">
+            <span className="h-3 w-3 rounded bg-seat-occupied" /> Taken
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }
 
 function SeatButton({
-  seat, selectedSeatId, optimisticSeatIds, ownSeatIds, onSelect,
+  seat,
+  selectedSeatId,
+  optimisticSeatIds,
+  ownSeatIds,
+  onSelect,
 }: {
   seat: Seat;
   selectedSeatId: string | null;
@@ -171,31 +158,25 @@ function SeatButton({
   const isOwn = ownSeatIds.includes(seat.id);
   const isOptimistic = optimisticSeatIds.includes(seat.id);
   const isSelected = selectedSeatId === seat.id || isOptimistic;
-  const occupied = !seat.is_available && !isOwn && !isOptimistic;
+  const taken = !seat.is_available && !isOwn && !isOptimistic;
+
+  const label = `${seat.seat_number} (${seat.class}${seat.extra_fee ? `, +${formatPrice(seat.extra_fee)}` : ""})`;
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          disabled={occupied}
-          onClick={() => onSelect(seat)}
-          className={cn(
-            "h-8 w-full rounded-md text-[10px] font-medium transition active:scale-95 disabled:cursor-not-allowed",
-            isOwn && "bg-seat-own text-white",
-            !isOwn && isSelected && "bg-seat-selected text-accent-foreground ring-2 ring-offset-1 ring-accent",
-            !isOwn && !isSelected && seat.is_available && "bg-seat-available text-foreground hover:bg-accent/30",
-            occupied && "bg-seat-occupied text-muted-foreground opacity-60",
-          )}
-        >
-          {seat.seat_number.replace(/^\d+/, "")}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="capitalize">{seat.class} · {seat.seat_number}</p>
-        {seat.extra_fee > 0 && <p className="text-xs">+{formatPrice(seat.extra_fee)}</p>}
-        {occupied && <p className="text-xs text-muted-foreground">Occupied</p>}
-      </TooltipContent>
-    </Tooltip>
+    <button
+      type="button"
+      title={label}
+      disabled={taken}
+      onClick={() => onSelect(seat)}
+      className={cn(
+        "h-7 w-full rounded text-[10px] font-medium",
+        isOwn && "bg-seat-own text-white",
+        !isOwn && isSelected && "bg-seat-selected text-white ring-2 ring-accent",
+        !isOwn && !isSelected && seat.is_available && "border border-black/10 bg-seat-available hover:bg-accent/20",
+        taken && "bg-seat-occupied text-muted-foreground",
+      )}
+    >
+      {seat.seat_number.replace(/^\d+/, "")}
+    </button>
   );
 }

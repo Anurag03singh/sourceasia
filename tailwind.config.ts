@@ -1,20 +1,11 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
-      },
-      letterSpacing: {
-        tighter: "-0.04em",
-        tight: "-0.02em",
-      },
-      transitionTimingFunction: {
-        spring: "cubic-bezier(0.25, 0.8, 0.25, 1)",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -46,9 +37,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        surface: "hsl(var(--surface))",
-        line: "hsl(var(--line))",
-        success: "hsl(var(--success))",
         seat: {
           available: "hsl(var(--seat-available))",
           selected: "hsl(var(--seat-selected))",
@@ -63,7 +51,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 };
 
 export default config;

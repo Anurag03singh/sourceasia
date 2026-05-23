@@ -4,11 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/Button";
+import { Input, Label } from "@/components/Field";
 import { toast } from "sonner";
-import { Plane } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
@@ -29,7 +27,7 @@ export function LoginForm() {
           options: { emailRedirectTo: `${window.location.origin}/` },
         });
         if (error) throw error;
-        toast.success("Account created — check your email if confirmation is required.");
+        toast.success("Check your email if confirmation is required.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -37,7 +35,7 @@ export function LoginForm() {
       }
       router.push("/search");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Authentication failed");
+      toast.error(err instanceof Error ? err.message : "Could not sign in");
     } finally {
       setLoading(false);
     }
@@ -45,8 +43,7 @@ export function LoginForm() {
 
   async function handleGoogle() {
     setLoading(true);
-    const supabase = getSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await getSupabaseBrowserClient().auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/search` },
     });
@@ -57,23 +54,15 @@ export function LoginForm() {
   }
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-65px)] max-w-md flex-col justify-center px-4 py-16 md:py-24">
-      <div className="card-surface p-8">
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground">
-          <Plane className="h-4 w-4 -rotate-45" />
-        </div>
-        <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-accent">Account</p>
-        <h1 className="mt-2 text-3xl font-semibold uppercase tracking-tighter">
-          {mode === "signin" ? "Welcome back" : "Create account"}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {mode === "signin" ? "Sign in to manage your bookings." : "Start booking in under a minute."}
-        </p>
+    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-12">
+      <div className="rounded-lg border border-black/10 bg-white p-8">
+        <h1 className="text-2xl font-semibold">{mode === "signin" ? "Sign in" : "Create account"}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Use email or Google to continue.</p>
 
         <form onSubmit={handleEmail} className="mt-6 space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" />
+            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
@@ -84,35 +73,30 @@ export function LoginForm() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1"
             />
           </div>
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+            {loading ? "Working…" : mode === "signin" ? "Sign in" : "Sign up"}
           </Button>
         </form>
 
-        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
-          <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
-        </div>
-
-        <Button onClick={handleGoogle} disabled={loading} variant="outline" className="w-full">
+        <Button variant="outline" onClick={handleGoogle} disabled={loading} className="mt-4 w-full">
           Continue with Google
         </Button>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          {mode === "signin" ? "Need an account?" : "Already have one?"}{" "}
+          {mode === "signin" ? "New here?" : "Have an account?"}{" "}
           <button
             type="button"
             onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="font-medium text-foreground underline-offset-4 hover:underline"
+            className="text-foreground underline-offset-2 hover:underline"
           >
-            {mode === "signin" ? "Sign up" : "Sign in"}
+            {mode === "signin" ? "Create one" : "Sign in"}
           </button>
         </p>
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          <Link href="/" className="hover:underline">
-            ← Back home
+        <p className="mt-4 text-center text-sm">
+          <Link href="/" className="text-muted-foreground hover:text-accent">
+            Back home
           </Link>
         </p>
       </div>

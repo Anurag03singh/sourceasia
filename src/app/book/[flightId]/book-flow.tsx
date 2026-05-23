@@ -12,9 +12,8 @@ type FlightRow = Database["public"]["Tables"]["flights"]["Row"];
 import { useFlightStore } from "@/stores/flightStore";
 import { useUserStore } from "@/stores/userStore";
 import { SeatMap } from "@/components/SeatMap";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/Button";
+import { Input, Label } from "@/components/Field";
 import { toast } from "sonner";
 import { formatCity, formatDate, formatTime, formatPrice } from "@/lib/format";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -105,27 +104,17 @@ export function BookFlow({ flightId }: { flightId: string }) {
   const totalPrice = flight.base_price + (selectedSeat?.extra_fee ?? 0);
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
-      <Link
-        href="/results"
-        className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-accent"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to results
+    <main className="mx-auto max-w-4xl px-4 py-10 md:px-6 md:py-14">
+      <Link href="/results" className="text-sm text-muted-foreground hover:text-accent">
+        ← Back to results
       </Link>
 
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-b border-black/10 pb-6">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
-            Step {stage === "seat" ? 3 : 4} of 4
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold uppercase tracking-tighter md:text-5xl">
-            {stage === "seat" ? "Choose your seat" : "Passenger details"}
-          </h1>
+      <div className="mt-6 border-b border-black/10 pb-6">
+        <h1 className="text-2xl font-semibold">{stage === "seat" ? "Pick a seat" : "Passenger details"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             <span className="font-mono">{flight.flight_no}</span> · {formatCity(flight.origin)} →{" "}
             {formatCity(flight.destination)} · {formatDate(flight.departs_at)} {formatTime(flight.departs_at)}
           </p>
-        </div>
       </div>
 
       <div className="mt-8 grid gap-8 md:grid-cols-[1fr_320px]">
@@ -141,7 +130,7 @@ export function BookFlow({ flightId }: { flightId: string }) {
               }}
             />
           ) : (
-            <div className="card-surface p-6 md:p-8">
+            <div className="rounded-lg border border-black/10 bg-white p-6">
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="name">Full name (as on passport)</Label>
@@ -193,8 +182,8 @@ export function BookFlow({ flightId }: { flightId: string }) {
           )}
         </section>
 
-        <aside className="card-surface h-fit p-6 md:sticky md:top-24">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-accent">Trip summary</h3>
+        <aside className="h-fit rounded-lg border border-black/10 bg-white p-6 md:sticky md:top-24">
+          <h3 className="font-semibold">Summary</h3>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Flight</dt>

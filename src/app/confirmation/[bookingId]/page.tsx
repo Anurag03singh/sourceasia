@@ -2,13 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatCity, formatDate, formatTime, formatPrice } from "@/lib/format";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/Button";
+import { StatusBadge } from "@/components/StatusBadge";
 import { CheckCircle2, Plane } from "lucide-react";
 
 type Props = { params: { bookingId: string } };
 
-export const metadata = { title: "Booking confirmed — Lovair" };
+export const metadata = { title: "Confirmed — Lovair" };
 
 export default async function ConfirmationPage({ params }: Props) {
   const supabase = await createSupabaseServerClient();
@@ -30,45 +30,38 @@ export default async function ConfirmationPage({ params }: Props) {
   const booking = data as unknown as BookingDetail;
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-16 md:py-24">
-      <div className="card-surface overflow-hidden">
-        <div className="bg-primary p-8 text-primary-foreground">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-accent" />
-            <span className="font-mono text-xs uppercase tracking-widest text-white/90">Confirmed</span>
+    <main className="mx-auto max-w-lg px-4 py-10 md:py-14">
+      <div className="rounded-lg border border-black/10 bg-white overflow-hidden">
+        <div className="bg-primary p-6 text-primary-foreground">
+          <div className="flex items-center gap-2 text-sm">
+            <CheckCircle2 className="h-4 w-4 text-accent" />
+            Confirmed
           </div>
-          <h1 className="mt-3 text-4xl font-semibold uppercase tracking-tighter md:text-5xl">You&apos;re booked.</h1>
-          <p className="mt-2 text-white/75">Your PNR is your reference — save it.</p>
-          <div className="mt-6 inline-flex items-center gap-3 rounded-sm border border-white/10 bg-white/10 px-5 py-3 backdrop-blur">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-white/70">PNR</span>
-            <span className="font-mono text-2xl tracking-[0.3em] text-accent">{booking.pnr_code}</span>
-          </div>
+          <h1 className="mt-2 text-2xl font-semibold">You&apos;re booked</h1>
+          <p className="mt-2 text-sm text-white/80">Save your PNR for check-in.</p>
+          <p className="mt-4 font-mono text-2xl tracking-widest text-accent">{booking.pnr_code}</p>
         </div>
 
-        <div className="p-8">
-          <div className="flex items-start justify-between">
+        <div className="p-6">
+          <div className="flex justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">From</p>
-              <p className="mt-1 font-mono text-3xl font-medium">{booking.flights.origin}</p>
+              <p className="text-xs text-muted-foreground">From</p>
+              <p className="text-xl font-medium">{booking.flights.origin}</p>
               <p className="text-sm text-muted-foreground">{formatCity(booking.flights.origin)}</p>
-              <p className="mt-2 text-2xl">{formatTime(booking.flights.departs_at)}</p>
+              <p className="mt-2">{formatTime(booking.flights.departs_at)}</p>
               <p className="text-xs text-muted-foreground">{formatDate(booking.flights.departs_at)}</p>
             </div>
-            <div className="px-4 pt-8">
-              <Plane className="h-6 w-6 -rotate-45 text-muted-foreground" />
-            </div>
+            <Plane className="mt-6 h-5 w-5 shrink-0 -rotate-45 text-muted-foreground" />
             <div className="text-right">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">To</p>
-              <p className="mt-1 font-mono text-3xl font-medium">{booking.flights.destination}</p>
+              <p className="text-xs text-muted-foreground">To</p>
+              <p className="text-xl font-medium">{booking.flights.destination}</p>
               <p className="text-sm text-muted-foreground">{formatCity(booking.flights.destination)}</p>
-              <p className="mt-2 text-2xl">{formatTime(booking.flights.arrives_at)}</p>
+              <p className="mt-2">{formatTime(booking.flights.arrives_at)}</p>
               <p className="text-xs text-muted-foreground">{formatDate(booking.flights.arrives_at)}</p>
             </div>
           </div>
 
-          <hr className="my-6 border-dashed border-border" />
-
-          <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+          <dl className="mt-6 grid grid-cols-2 gap-3 text-sm">
             <div>
               <dt className="text-muted-foreground">Flight</dt>
               <dd className="font-mono">{booking.flights.flight_no}</dd>
@@ -89,23 +82,25 @@ export default async function ConfirmationPage({ params }: Props) {
 
           {booking.passengers?.length > 0 && (
             <div className="mt-6">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">Passenger</p>
+              <p className="text-xs text-muted-foreground">Passenger</p>
               {booking.passengers.map((p) => (
-                <div key={p.id} className="mt-2 flex items-center gap-2">
-                  <Badge variant="secondary">{p.nationality}</Badge>
-                  <span className="font-medium">{p.full_name}</span>
-                </div>
+                <p key={p.id} className="mt-1 font-medium">
+                  {p.full_name}{" "}
+                  <StatusBadge tone="muted" className="ml-1">
+                    {p.nationality}
+                  </StatusBadge>
+                </p>
               ))}
             </div>
           )}
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-col gap-2 sm:flex-row">
             <Link href="/bookings" className="flex-1">
-              <Button className="w-full">View my bookings</Button>
+              <Button className="w-full">My bookings</Button>
             </Link>
             <Link href="/search" className="flex-1">
               <Button variant="outline" className="w-full">
-                Book another trip
+                Book another
               </Button>
             </Link>
           </div>

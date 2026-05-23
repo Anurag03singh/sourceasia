@@ -2,10 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useFlightStore } from "@/stores/flightStore";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/Button";
+import { Input, Label, Select } from "@/components/Field";
 import { ALL_AIRPORTS, formatCity } from "@/lib/format";
 import { ArrowRight, Plane } from "lucide-react";
 
@@ -29,41 +27,41 @@ export function SearchForm() {
   const todayISO = new Date().toISOString().slice(0, 10);
 
   return (
-    <form onSubmit={submit} className="card-surface p-6 md:p-8">
+    <form onSubmit={submit} className="rounded-lg border border-black/10 bg-white p-6">
       <div className="grid gap-5 md:grid-cols-[1fr_auto_1fr]">
         <div>
-          <Label>From</Label>
-          <Select value={searchQuery.origin} onValueChange={(v) => setSearchQuery({ origin: v })}>
-            <SelectTrigger className="mt-1 h-12">
-              <SelectValue placeholder="Origin city" />
-            </SelectTrigger>
-            <SelectContent>
-              {ALL_AIRPORTS.map((a) => (
-                <SelectItem key={a} value={a}>
-                  {formatCity(a)} ({a})
-                </SelectItem>
-              ))}
-            </SelectContent>
+          <Label htmlFor="origin">From</Label>
+          <Select
+            id="origin"
+            required
+            value={searchQuery.origin}
+            onChange={(e) => setSearchQuery({ origin: e.target.value })}
+          >
+            <option value="">Pick origin</option>
+            {ALL_AIRPORTS.map((a) => (
+              <option key={a} value={a}>
+                {formatCity(a)} ({a})
+              </option>
+            ))}
           </Select>
         </div>
-        <div className="hidden items-end justify-center pb-3 md:flex">
-          <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-primary">
-            <ArrowRight className="h-4 w-4" />
-          </div>
+        <div className="hidden items-end justify-center pb-2 md:flex">
+          <ArrowRight className="h-5 w-5 text-muted-foreground" />
         </div>
         <div>
-          <Label>To</Label>
-          <Select value={searchQuery.destination} onValueChange={(v) => setSearchQuery({ destination: v })}>
-            <SelectTrigger className="mt-1 h-12">
-              <SelectValue placeholder="Destination city" />
-            </SelectTrigger>
-            <SelectContent>
-              {ALL_AIRPORTS.filter((a) => a !== searchQuery.origin).map((a) => (
-                <SelectItem key={a} value={a}>
-                  {formatCity(a)} ({a})
-                </SelectItem>
-              ))}
-            </SelectContent>
+          <Label htmlFor="destination">To</Label>
+          <Select
+            id="destination"
+            required
+            value={searchQuery.destination}
+            onChange={(e) => setSearchQuery({ destination: e.target.value })}
+          >
+            <option value="">Pick destination</option>
+            {ALL_AIRPORTS.filter((a) => a !== searchQuery.origin).map((a) => (
+              <option key={a} value={a}>
+                {formatCity(a)} ({a})
+              </option>
+            ))}
           </Select>
         </div>
       </div>
@@ -74,12 +72,11 @@ export function SearchForm() {
           <Input
             id="date"
             type="date"
-            className="mt-1 h-12"
             min={todayISO}
             value={searchQuery.date}
             onChange={(e) => setSearchQuery({ date: e.target.value })}
           />
-          <p className="mt-1 text-xs text-muted-foreground">Leave blank to see all upcoming dates.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Optional — leave empty for all upcoming dates.</p>
         </div>
         <div>
           <Label htmlFor="passengers">Passengers</Label>
@@ -88,15 +85,14 @@ export function SearchForm() {
             type="number"
             min={1}
             max={9}
-            className="mt-1 h-12"
             value={searchQuery.passengers}
             onChange={(e) => setSearchQuery({ passengers: Number(e.target.value) || 1 })}
           />
         </div>
       </div>
 
-      <Button type="submit" disabled={!searchQuery.origin || !searchQuery.destination} className="mt-6 h-12 w-full md:w-auto md:px-8">
-        Search flights <Plane className="ml-2 h-4 w-4 -rotate-45" />
+      <Button type="submit" disabled={!searchQuery.origin || !searchQuery.destination} className="mt-6">
+        Search flights <Plane className="h-4 w-4 -rotate-45" />
       </Button>
     </form>
   );
