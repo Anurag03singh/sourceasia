@@ -21,6 +21,19 @@ Run the app:
 npm run dev
 ```
 
+## Vercel deployment
+
+This project can deploy directly to Vercel from the GitHub repository.
+
+1. Push this repository to GitHub.
+2. Create a new Vercel project and connect it to the repository.
+3. In Vercel project settings, add these environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Deploy. Vercel will run `npm install` and `npm run build` automatically.
+
+> Use the same Supabase values as in `.env.local`, and do not commit secret keys to Git.
+
 ## Stack
 
 - Next.js 14 (App Router)

@@ -15,6 +15,11 @@ export function createSupabaseBrowserClient() {
 let client: ReturnType<typeof createSupabaseBrowserClient> | undefined;
 
 export function getSupabaseBrowserClient() {
+  if (typeof window === "undefined") {
+    // Avoid build-time prerender errors on Vercel when pages render on the server.
+    return undefined as unknown as ReturnType<typeof createSupabaseBrowserClient>;
+  }
+
   if (!client) client = createSupabaseBrowserClient();
   return client;
 }
