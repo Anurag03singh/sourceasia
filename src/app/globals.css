@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 96.1%;
+    --foreground: 0 0% 6.7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 6.7%;
+    --primary: 0 0% 6.7%;
+    --primary-foreground: 0 0% 96.1%;
+    --secondary: 0 0% 92%;
+    --secondary-foreground: 0 0% 6.7%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 33%;
+    --accent: 11 86% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 11 86% 50%;
+    --radius: 0.5rem;
+    --line: 0 0% 88%;
+    --surface: 0 0% 100%;
+    --surface-foreground: 0 0% 6.7%;
+    --success: 152 60% 40%;
+    --seat-available: 0 0% 100%;
+    --seat-selected: 11 86% 50%;
+    --seat-occupied: 0 0% 83%;
+    --seat-own: 152 60% 40%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html.lenis {
+    height: auto;
+  }
+
+  html.lenis.lenis-smooth {
+    scroll-behavior: auto;
+  }
+
+  body {
+    @apply overflow-x-hidden bg-background font-sans text-foreground antialiased;
+  }
+
+  ::selection {
+    background-color: #eb3a14;
+    color: white;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-sans font-semibold tracking-tighter;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors duration-300 hover:bg-accent;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full border border-black/10 bg-surface px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-colors duration-200 hover:border-accent hover:text-accent;
+  }
+
+  .card-surface {
+    @apply rounded-sm border border-black/10 bg-surface shadow-sm;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-hero-light {
+    background: linear-gradient(180deg, #f5f5f5 0%, #ebebeb 100%);
+  }
+}
+
+/* Custom cursor */
+@media (pointer: fine) {
+  body.has-custom-cursor {
+    cursor: none;
+  }
+
+  .cursor-dot,
+  .cursor-circle {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: exclusion;
+  }
+
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .cursor-circle {
+    width: 32px;
+    height: 32px;
+    border: 1px solid white;
+    border-radius: 50%;
+    transition:
+      width 0.2s,
+      height 0.2s,
+      background-color 0.2s;
+  }
+
+  body.cursor-hover .cursor-circle {
+    width: 64px;
+    height: 64px;
+    background-color: rgb(255 255 255 / 0.1);
+    border-color: transparent;
+  }
+}
+
+@media (pointer: coarse) {
+  .cursor-dot,
+  .cursor-circle {
+    display: none !important;
+  }
+}
+
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #111111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #f5f5f5;
+}
+
+.hero-char {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(20px);
+  will-change: transform, opacity, filter;
+}
+
+.hero-glow {
+  position: absolute;
+  width: min(600px, 90vw);
+  height: min(600px, 90vw);
+  background: radial-gradient(circle, rgb(235 58 20 / 0.08) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.marquee-track {
+  display: flex;
+  white-space: nowrap;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.magnetic-wrap {
+  display: inline-block;
+  will-change: transform;
+}
+
+.hover-card .hover-card-media {
+  transition:
+    transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+    filter 0.5s;
+}
+
+.hover-card:hover .hover-card-media {
+  transform: scale(1.02);
+}
