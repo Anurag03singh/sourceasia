@@ -192,7 +192,7 @@ After running `supabase/seed.sql`:
 - **Best Practices:** 96/100
 - **SEO:** 90/100
 
-See [Lighthouse report](./docs/lighthouse.png) for details.
+To generate a Lighthouse PWA report locally, see [docs/LIGHTHOUSE.md](docs/LIGHTHOUSE.md).
 
 ## Troubleshooting
 
